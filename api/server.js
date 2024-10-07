@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 
@@ -9,34 +8,12 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Include util.js
-const util = require('./util');
+const { query } = require('./util');
 
 // Function to output JSON and exit
 function jsonOutput(res, data) {
     res.json(data);
 }
-
-// Database connection
-const dbConfig = {
-    host: "localhost",
-    database: "mmorpg_game",
-    user: "root",
-    password: "Mi17sa95++"
-};
-
-let db;
-
-async function connectToDatabase() {
-    try {
-        db = await mysql.createConnection(dbConfig);
-        console.log('Connected to database');
-    } catch (err) {
-        console.error('Database connection failed:', err);
-        process.exit(1);
-    }
-}
-
-connectToDatabase();
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -47,7 +24,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     
     try {
-        const [rows] = await db.execute("SELECT id, password FROM users WHERE username = ?", [username]);
+        const { rows } = await query("SELECT id, password FROM users WHERE username = $1", [username]);
         const user = rows[0];
 
         if (user && await bcrypt.compare(password, user.password)) {
@@ -69,7 +46,7 @@ app.get('/progress', async (req, res) => {
     }
     
     try {
-        const [rows] = await db.execute("SELECT experience, level, desire_for_adventure, class, strength, defense, intelligence, dexterity, gold, avatar FROM users WHERE username = ?", [username]);
+        const { rows } = await query("SELECT experience, level, desire_for_adventure, class, strength, defense, intelligence, dexterity, gold, avatar FROM users WHERE username = $1", [username]);
         const progress = rows[0];
         
         if (progress) {
@@ -103,10 +80,10 @@ app.post('/progress', async (req, res) => {
     }
     
     try {
-        const [result] = await db.execute("UPDATE users SET experience = ?, level = ?, desire_for_adventure = ?, strength = ?, defense = ?, intelligence = ?, dexterity = ?, gold = ? WHERE username = ?",
+        const result = await query("UPDATE users SET experience = $1, level = $2, desire_for_adventure = $3, strength = $4, defense = $5, intelligence = $6, dexterity = $7, gold = $8 WHERE username = $9",
             [experience, level, desireForAdventure, strength, defense, intelligence, dexterity, gold, username]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Progress updated successfully' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to update progress' });
@@ -126,7 +103,7 @@ app.post('/register', async (req, res) => {
 
     try {
         // Check if username already exists
-        const [existingUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+        const { rows: existingUsers } = await query("SELECT * FROM users WHERE username = $1", [username]);
         if (existingUsers.length > 0) {
             return jsonOutput(res, { success: false, message: 'Username already exists' });
         }
@@ -134,29 +111,22 @@ app.post('/register', async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Start transaction
-        await db.beginTransaction();
-
         // Insert new user
-        const [userResult] = await db.execute("INSERT INTO users (username, password, class, avatar) VALUES (?, ?, ?, ?)", [username, hashedPassword, userClass, avatar]);
+        const { rowCount: userRowCount } = await query("INSERT INTO users (username, password, class, avatar) VALUES ($1, $2, $3, $4)", [username, hashedPassword, userClass, avatar]);
 
-        if (userResult.affectedRows > 0) {
+        if (userRowCount > 0) {
             // Initialize resources for the new user
-            const [resourceResult] = await db.execute("INSERT INTO resources (username, wood, stone, iron, gold) VALUES (?, 0, 0, 0, 0)", [username]);
+            const { rowCount: resourceRowCount } = await query("INSERT INTO resources (username, wood, stone, iron, gold) VALUES ($1, 0, 0, 0, 0)", [username]);
 
-            if (resourceResult.affectedRows > 0) {
-                await db.commit();
+            if (resourceRowCount > 0) {
                 jsonOutput(res, { success: true, message: 'Registration successful' });
             } else {
-                await db.rollback();
                 jsonOutput(res, { success: false, message: 'Failed to initialize resources' });
             }
         } else {
-            await db.rollback();
             jsonOutput(res, { success: false, message: 'Registration failed' });
         }
     } catch (err) {
-        await db.rollback();
         console.error("Registration error:", err);
         jsonOutput(res, { success: false, message: 'An unexpected error occurred: ' + err.message });
     }
@@ -166,7 +136,7 @@ app.get('/buildings', async (req, res) => {
     const { username } = req.query;
     
     try {
-        const [buildings] = await db.execute("SELECT * FROM buildings WHERE username = ?", [username]);
+        const { rows: buildings } = await query("SELECT * FROM buildings WHERE username = $1", [username]);
         jsonOutput(res, { success: true, buildings });
     } catch (err) {
         console.error("Error in buildings endpoint:", err);
@@ -178,11 +148,11 @@ app.post('/buildings', async (req, res) => {
     const { username, building } = req.body;
     
     try {
-        const [result] = await db.execute("INSERT INTO buildings (username, type, x, y, start_time, level) VALUES (?, ?, ?, ?, ?, 1)",
+        const { rows } = await query("INSERT INTO buildings (username, type, x, y, start_time, level) VALUES ($1, $2, $3, $4, $5, 1) RETURNING id",
             [username, building.type, building.x, building.y, building.start_time]);
         
-        if (result.affectedRows > 0) {
-            jsonOutput(res, { success: true, message: 'Building added successfully', buildingId: result.insertId });
+        if (rows.length > 0) {
+            jsonOutput(res, { success: true, message: 'Building added successfully', buildingId: rows[0].id });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to add building' });
         }
@@ -196,9 +166,9 @@ app.delete('/buildings', async (req, res) => {
     const { username, buildingId } = req.body;
     
     try {
-        const [result] = await db.execute("DELETE FROM buildings WHERE id = ? AND username = ?", [buildingId, username]);
+        const { rowCount } = await query("DELETE FROM buildings WHERE id = $1 AND username = $2", [buildingId, username]);
         
-        if (result.affectedRows > 0) {
+        if (rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Building removed' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to remove building' });
@@ -214,16 +184,16 @@ app.put('/buildings', async (req, res) => {
     
     try {
         // Fetch current building level
-        const [rows] = await db.execute("SELECT level FROM buildings WHERE id = ? AND username = ?", [buildingId, username]);
+        const { rows } = await query("SELECT level FROM buildings WHERE id = $1 AND username = $2", [buildingId, username]);
         const currentLevel = rows[0]?.level;
         
         if (currentLevel !== undefined) {
             const newLevel = currentLevel + 1;
             
             // Update building level
-            const [result] = await db.execute("UPDATE buildings SET level = ? WHERE id = ? AND username = ?", [newLevel, buildingId, username]);
+            const result = await query("UPDATE buildings SET level = $1 WHERE id = $2 AND username = $3", [newLevel, buildingId, username]);
             
-            if (result.affectedRows > 0) {
+            if (result.rowCount > 0) {
                 jsonOutput(res, { success: true, message: 'Building upgraded', newLevel });
             } else {
                 jsonOutput(res, { success: false, message: 'Failed to upgrade building' });
@@ -241,7 +211,7 @@ app.get('/resources', async (req, res) => {
     const { username } = req.query;
     
     try {
-        const [rows] = await db.execute("SELECT * FROM resources WHERE username = ?", [username]);
+        const { rows } = await query("SELECT * FROM resources WHERE username = $1", [username]);
         const resources = rows[0];
         if (resources) {
             jsonOutput(res, { success: true, resources });
@@ -258,10 +228,10 @@ app.post('/resources', async (req, res) => {
     const { username, resources } = req.body;
     
     try {
-        const [result] = await db.execute("UPDATE resources SET wood = ?, stone = ?, iron = ?, gold = ? WHERE username = ?",
+        const result = await query("UPDATE resources SET wood = $1, stone = $2, iron = $3, gold = $4 WHERE username = $5",
             [resources.wood, resources.stone, resources.iron, resources.gold, username]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Resources updated' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to update resources' });
@@ -275,17 +245,19 @@ app.post('/resources', async (req, res) => {
 app.get('/leaderboard', async (req, res) => {
     const { timeFrame = 'all', category = 'experience' } = req.query;
     
-    let query = "SELECT username, level, experience, strength, defense, intelligence, dexterity FROM users";
+    let queryText = "SELECT username, level, experience, strength, defense, intelligence, dexterity FROM users";
+    const queryParams = [];
     
     if (timeFrame !== 'all') {
         const timeLimit = timeFrame === 'weekly' ? '1 WEEK' : '1 MONTH';
-        query += ` WHERE last_active >= DATE_SUB(NOW(), INTERVAL ${timeLimit})`;
+        queryText += " WHERE last_active >= NOW() - INTERVAL $1";
+        queryParams.push(timeLimit);
     }
     
-    query += ` ORDER BY ${category} DESC LIMIT 100`;
+    queryText += ` ORDER BY ${category} DESC LIMIT 100`;
     
     try {
-        const [leaderboard] = await db.execute(query);
+        const { rows: leaderboard } = await query(queryText, queryParams);
         jsonOutput(res, { success: true, leaderboard });
     } catch (err) {
         console.error("Error in leaderboard endpoint:", err);
@@ -301,7 +273,7 @@ app.get('/messages', async (req, res) => {
     }
     
     try {
-        const [messages] = await db.execute("SELECT * FROM messages WHERE recipient = ? ORDER BY timestamp DESC", [username]);
+        const { rows: messages } = await query("SELECT * FROM messages WHERE recipient = $1 ORDER BY timestamp DESC", [username]);
         jsonOutput(res, { success: true, messages });
     } catch (err) {
         console.error("Error in messages GET endpoint:", err);
@@ -317,10 +289,10 @@ app.post('/messages', async (req, res) => {
     }
     
     try {
-        const [result] = await db.execute("INSERT INTO messages (sender, recipient, subject, content) VALUES (?, ?, ?, ?)",
+        const result = await query("INSERT INTO messages (sender, recipient, subject, content) VALUES ($1, $2, $3, $4)",
             [sender, recipient, subject, content]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Message sent successfully' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to send message' });
@@ -339,9 +311,9 @@ app.delete('/messages/:messageId', async (req, res) => {
     }
     
     try {
-        const [result] = await db.execute("DELETE FROM messages WHERE id = ?", [messageId]);
+        const result = await query("DELETE FROM messages WHERE id = $1", [messageId]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Message deleted successfully' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to delete message' });
@@ -360,8 +332,8 @@ app.get('/messages/unread', async (req, res) => {
     }
     
     try {
-        const [rows] = await db.execute("SELECT COUNT(*) as unreadCount FROM messages WHERE recipient = ? AND is_read = 0", [username]);
-        const unreadCount = rows[0].unreadCount;
+        const { rows } = await query("SELECT COUNT(*) as unreadCount FROM messages WHERE recipient = $1 AND is_read = false", [username]);
+        const unreadCount = rows[0].unreadcount;
         jsonOutput(res, { success: true, unreadCount });
     } catch (err) {
         console.error("Error in messages/unread endpoint:", err);
@@ -377,9 +349,9 @@ app.post('/messages/read', async (req, res) => {
     }
     
     try {
-        const [result] = await db.execute("UPDATE messages SET is_read = 1 WHERE id = ?", [messageId]);
+        const result = await query("UPDATE messages SET is_read = true WHERE id = $1", [messageId]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Message marked as read' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to mark message as read' });
@@ -398,12 +370,12 @@ app.get('/clan', async (req, res) => {
     }
 
     try {
-        const [rows] = await db.execute("SELECT c.* FROM clans c JOIN clan_members cm ON c.id = cm.clan_id WHERE cm.username = ?", [username]);
-        const clan = rows[0];
+        const { rows: clanRows } = await query("SELECT c.* FROM clans c JOIN clan_members cm ON c.id = cm.clan_id WHERE cm.username = $1", [username]);
+        const clan = clanRows[0];
 
         if (clan) {
-            const [members] = await db.execute("SELECT username FROM clan_members WHERE clan_id = ?", [clan.id]);
-            clan.members = members.map(member => member.username);
+            const { rows: memberRows } = await query("SELECT username FROM clan_members WHERE clan_id = $1", [clan.id]);
+            clan.members = memberRows.map(member => member.username);
 
             jsonOutput(res, { success: true, clan });
         } else {
@@ -423,36 +395,30 @@ app.post('/clan', async (req, res) => {
     }
 
     try {
-        await db.beginTransaction();
-
         // Check if the user has enough gold
-        const [userRows] = await db.execute("SELECT gold FROM users WHERE username = ?", [username]);
+        const { rows: userRows } = await query("SELECT gold FROM users WHERE username = $1", [username]);
         const userGold = userRows[0]?.gold;
 
         if (!userGold || userGold < 500) {
-            await db.rollback();
             return jsonOutput(res, { success: false, message: 'Not enough gold to create a clan' });
         }
 
         // Create the clan
-        const [clanResult] = await db.execute("INSERT INTO clans (name, leader) VALUES (?, ?)", [clanName, username]);
-        const clanId = clanResult.insertId;
+        const { rows: clanRows } = await query("INSERT INTO clans (name, leader) VALUES ($1, $2) RETURNING id", [clanName, username]);
+        const clanId = clanRows[0].id;
 
         // Add the user to the clan
-        await db.execute("INSERT INTO clan_members (clan_id, username) VALUES (?, ?)", [clanId, username]);
+        await query("INSERT INTO clan_members (clan_id, username) VALUES ($1, $2)", [clanId, username]);
 
         // Deduct gold from the user
-        await db.execute("UPDATE users SET gold = gold - 500 WHERE username = ?", [username]);
-
-        await db.commit();
+        await query("UPDATE users SET gold = gold - 500 WHERE username = $1", [username]);
 
         // Fetch the created clan
-        const [clanRows] = await db.execute("SELECT * FROM clans WHERE id = ?", [clanId]);
-        const clan = clanRows[0];
+        const { rows: createdClanRows } = await query("SELECT * FROM clans WHERE id = $1", [clanId]);
+        const clan = createdClanRows[0];
 
         jsonOutput(res, { success: true, clan });
     } catch (err) {
-        await db.rollback();
         console.error("Error in clan POST endpoint:", err);
         jsonOutput(res, { success: false, message: 'An error occurred: ' + err.message });
     }
@@ -460,7 +426,7 @@ app.post('/clan', async (req, res) => {
 
 app.get('/clans', async (req, res) => {
     try {
-        const [rows] = await db.execute(`
+        const { rows } = await query(`
             SELECT c.id, c.name, COUNT(cm.username) as memberCount 
             FROM clans c 
             LEFT JOIN clan_members cm ON c.id = cm.clan_id 
@@ -475,13 +441,13 @@ app.get('/clans', async (req, res) => {
 
 app.get('/quests', async (req, res) => {
     try {
-        const [quests] = await db.execute("SELECT id, title, description, reward, position_x, position_y, completed FROM quests ORDER BY id");
+        const { rows: quests } = await query("SELECT id, title, description, reward, position_x, position_y, completed FROM quests ORDER BY id");
         
         // Find the first uncompleted quest
         let activeQuest = null;
         let allCompleted = true;
         for (const quest of quests) {
-            if (quest.completed == 0) {
+            if (quest.completed == false) {
                 activeQuest = quest;
                 allCompleted = false;
                 break;
@@ -490,7 +456,7 @@ app.get('/quests', async (req, res) => {
         
         // If all quests are completed, reset them
         if (allCompleted) {
-            await db.execute("UPDATE quests SET completed = 0");
+            await query("UPDATE quests SET completed = false");
             activeQuest = quests[0];
         }
         
@@ -505,20 +471,19 @@ app.post('/quests/complete', async (req, res) => {
     const { questId } = req.body;
     
     try {
-        const [result] = await db.execute("UPDATE quests SET completed = 1 WHERE id = ?", [questId]);
+        const result = await query("UPDATE quests SET completed = true WHERE id = $1", [questId]);
         
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             // Find the next uncompleted quest
-            const [rows] = await db.execute("SELECT id, title, description, reward, position_x, position_y FROM quests WHERE completed = 0 ORDER BY id LIMIT 1");
+            const { rows } = await query("SELECT id, title, description, reward, position_x, position_y FROM quests WHERE completed = false ORDER BY id LIMIT 1");
             let nextQuest = rows[0];
             
             // If no uncompleted quests, reset all quests
             if (!nextQuest) {
-                await db.execute("UPDATE quests SET completed = 0");
-                [rows] = await db.execute("SELECT id, title, description, reward, position_x, position_y FROM quests ORDER BY id LIMIT 1");
-                nextQuest = rows[0];
+                await query("UPDATE quests SET completed = false");
+                const { rows: resetRows } = await query("SELECT id, title, description, reward, position_x, position_y FROM quests ORDER BY id LIMIT 1");
+                nextQuest = resetRows[0];
             }
-            
             jsonOutput(res, { success: true, message: 'Quest completed successfully', nextQuest });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to complete quest' });
@@ -630,15 +595,15 @@ app.post('/change-username', async (req, res) => {
 
     try {
         // Check if the new username already exists
-        const [existingUsers] = await db.execute("SELECT * FROM users WHERE username = ?", [newUsername]);
+        const { rows: existingUsers } = await query("SELECT * FROM users WHERE username = $1", [newUsername]);
         if (existingUsers.length > 0) {
             return jsonOutput(res, { success: false, message: 'New username already exists' });
         }
 
         // Update the username
-        const [result] = await db.execute("UPDATE users SET username = ? WHERE username = ?", [newUsername, username]);
+        const result = await query("UPDATE users SET username = $1 WHERE username = $2", [newUsername, username]);
 
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Username changed successfully' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to change username' });
@@ -658,7 +623,7 @@ app.post('/change-password', async (req, res) => {
 
     try {
         // Verify current password
-        const [users] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+        const { rows: users } = await query("SELECT * FROM users WHERE username = $1", [username]);
         const user = users[0];
 
         if (!user || !await bcrypt.compare(currentPassword, user.password)) {
@@ -667,9 +632,9 @@ app.post('/change-password', async (req, res) => {
 
         // Update the password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        const [result] = await db.execute("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username]);
+        const result = await query("UPDATE users SET password = $1 WHERE username = $2", [hashedPassword, username]);
 
-        if (result.affectedRows > 0) {
+        if (result.rowCount > 0) {
             jsonOutput(res, { success: true, message: 'Password changed successfully' });
         } else {
             jsonOutput(res, { success: false, message: 'Failed to change password' });
@@ -680,7 +645,17 @@ app.post('/change-password', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.get('/test-db', async (req, res) => {
+    try {
+        const { rows } = await query('SELECT NOW()');
+        res.json({ success: true, currentTime: rows[0].now });
+    } catch (err) {
+        console.error('Database test failed:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,0 +1,15 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Beer mug body -->
+  <path d="M20 30 L20 80 Q20 90, 30 90 L70 90 Q80 90, 80 80 L80 30 Z" fill="#FFA500" stroke="#8B4513" stroke-width="3"/>
+  
+  <!-- Beer mug handle -->
+  <path d="M80 40 Q90 40, 90 50 L90 60 Q90 70, 80 70" fill="none" stroke="#8B4513" stroke-width="3"/>
+  
+  <!-- Beer foam -->
+  <path d="M20 30 Q30 20, 40 30 Q50 20, 60 30 Q70 20, 80 30" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="3"/>
+  
+  <!-- Beer bubbles -->
+  <circle cx="40" cy="50" r="3" fill="#FFFFFF"/>
+  <circle cx="50" cy="60" r="2" fill="#FFFFFF"/>
+  <circle cx="60" cy="55" r="4" fill="#FFFFFF"/>
+</svg>

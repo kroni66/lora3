@@ -1,0 +1,54 @@
+.clan-list {
+  margin-top: 30px;
+}
+
+.clan-list-title {
+  font-size: 1.8em;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.clan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.clan-item {
+  background-image: url('../../assets/clan/wooden_frame.webp');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.clan-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.clan-item-content {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.clan-item h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  color: #ffd700;
+  text-shadow: 1px 1px 2px black;
+}
+
+.clan-item p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #fff;
+}

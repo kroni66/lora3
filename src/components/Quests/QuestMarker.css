@@ -1,0 +1,50 @@
+.quest-marker {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #ffd700;
+  color: #1a1a2e;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1000; /* Ensure the marker is above other elements */
+  animation: pulse 1.5s infinite;
+}
+
+.quest-marker.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quest-marker.active:hover {
+  transform: scale(1.1);
+  animation: none; /* Stop pulsing on hover */
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+.tavern-image-container {
+  position: relative;
+  /* ... other styles ... */
+}

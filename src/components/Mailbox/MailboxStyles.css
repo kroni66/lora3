@@ -1,0 +1,121 @@
+.mailbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.mailbox-modal {
+  background-color: #1a1e24;
+  border-radius: 10px;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #ffd700;
+  cursor: pointer;
+}
+
+.message-list {
+  margin-bottom: 20px;
+}
+
+.message-item {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.message-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.message-sender {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.message-date {
+  font-size: 0.8em;
+  color: #888;
+}
+
+.message-subject {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.message-content {
+  word-break: break-word;
+}
+
+.compose-message {
+  display: flex;
+  flex-direction: column;
+}
+
+.compose-message input,
+.compose-message textarea {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #2a2e35;
+  color: #fff;
+}
+
+.compose-message button {
+  background-color: #ffd700;
+  color: #1a1e24;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.compose-message button:hover {
+  background-color: #ffea00;
+}
+
+/* Add this to your existing styles */
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff4d4d;
+  padding: 0;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.delete-button:hover {
+  color: #ff0000;
+}

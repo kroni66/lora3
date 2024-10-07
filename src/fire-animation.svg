@@ -1,0 +1,46 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="fireGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#ffff00" />
+      <stop offset="40%" stop-color="#ffaa00" />
+      <stop offset="70%" stop-color="#ff6600" />
+      <stop offset="100%" stop-color="#ff0000" />
+    </radialGradient>
+    
+    <filter id="fireBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
+    </filter>
+  </defs>
+  
+  <g filter="url(#fireBlur)">
+    <path d="M100 180 Q 120 120 100 80 Q 80 40 100 20 Q 120 40 100 80 Q 80 120 100 180" fill="url(#fireGradient)">
+      <animate attributeName="d" 
+        values="
+          M100 180 Q 120 120 100 80 Q 80 40 100 20 Q 120 40 100 80 Q 80 120 100 180;
+          M100 180 Q 80 120 100 80 Q 120 40 100 20 Q 80 40 100 80 Q 120 120 100 180;
+          M100 180 Q 120 120 100 80 Q 80 40 100 20 Q 120 40 100 80 Q 80 120 100 180"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </path>
+    
+    <path d="M100 180 Q 130 140 100 100 Q 70 60 100 40 Q 130 60 100 100 Q 70 140 100 180" fill="url(#fireGradient)" opacity="0.7">
+      <animate attributeName="d" 
+        values="
+          M100 180 Q 130 140 100 100 Q 70 60 100 40 Q 130 60 100 100 Q 70 140 100 180;
+          M100 180 Q 70 140 100 100 Q 130 60 100 40 Q 70 60 100 100 Q 130 140 100 180;
+          M100 180 Q 130 140 100 100 Q 70 60 100 40 Q 130 60 100 100 Q 70 140 100 180"
+        dur="4s"
+        repeatCount="indefinite"
+      />
+    </path>
+    
+    <circle cx="100" cy="100" r="20" fill="url(#fireGradient)" opacity="0.9">
+      <animate attributeName="r"
+        values="20; 25; 20"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </g>
+</svg>

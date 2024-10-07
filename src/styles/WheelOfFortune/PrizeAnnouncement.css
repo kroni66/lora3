@@ -1,0 +1,27 @@
+.prize-announcement {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.prize-announcement h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #ffd700;
+}
+
+.prize-announcement p {
+  font-size: 1.5rem;
+}
+
+.prize {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

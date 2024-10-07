@@ -1,0 +1,147 @@
+.leaderboard-container {
+  background-color: rgba(26, 26, 46, 0.9); /* Semi-transparent background */
+  color: #e0e0e0;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  max-width: 800px;
+  width: 100%;
+  position: relative; /* Added to ensure it's above the background images */
+  z-index: 1; /* Ensure it's above the background images */
+}
+
+.leaderboard-title {
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.leaderboard-table-header {
+  background-color: #2a2a3e;
+}
+
+.leaderboard-table-row {
+  background-color: #0f0f1e;
+  transition: background-color 0.3s;
+}
+
+.leaderboard-table-row:hover {
+  background-color: #2a2a3e;
+}
+
+.leaderboard-table-cell {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #ffd700;
+  border-bottom: 1px solid #ffd700;
+}
+
+.leaderboard-table-cell:first-child {
+  border-left: 1px solid #ffd700;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.leaderboard-table-cell:last-child {
+  border-right: 1px solid #ffd700;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-select {
+  background-color: #2a2a3e;
+  color: #e0e0e0;
+  border: 1px solid #ffd700;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filter-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5);
+}
+
+.leaderboard-screen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #0a0a0a; /* Dark background */
+  overflow: hidden; /* Ensure the pseudo-elements don't cause scrollbars */
+}
+
+.leaderboard-screen::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; /* Adjust size as needed */
+  height: 300px; /* Adjust size as needed */
+  background-image: url('../assets/loralogo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.2; /* Adjust opacity as needed */
+  z-index: 0;
+}
+
+.leaderboard-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    url('../assets/leaderboard/left_side_bg_lb.png'),
+    url('../assets/leaderboard/right_side_bg_lb.png');
+  background-position: 
+    left center,
+    right center;
+  background-repeat: no-repeat;
+  background-size: 
+    300px 100%, /* Adjust size as needed */
+    300px 100%; /* Adjust size as needed */
+  opacity: 0.7;
+  z-index: 0;
+}
+
+@media (max-width: 1200px) {
+  .leaderboard-screen::after {
+    background-size: 
+      150px 100%,
+      150px 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .leaderboard-screen::before {
+    width: 200px;
+    height: 200px;
+  }
+
+  .leaderboard-screen::after {
+    background-image: none;
+  }
+}

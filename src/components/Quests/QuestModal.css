@@ -1,0 +1,52 @@
+.quest-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.quest-modal {
+  background-color: #1a1a2e;
+  border: 2px solid #ffd700;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 400px;
+  width: 100%;
+  color: #fff;
+}
+
+.quest-modal h2 {
+  color: #ffd700;
+  margin-top: 0;
+}
+
+.quest-reward {
+  margin-top: 20px;
+}
+
+.quest-modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.quest-modal-buttons button {
+  padding: 10px 20px;
+  background-color: #ffd700;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.quest-modal-buttons button:hover {
+  background-color: #ffed4a;
+}

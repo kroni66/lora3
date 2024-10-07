@@ -1,0 +1,114 @@
+.wheel-of-fortune {
+  position: relative;
+  width: 80%; /* Reduced from 100% */
+  max-width: 400px; /* Added max-width to limit size on larger screens */
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto; /* Center the wheel horizontally */
+}
+
+.wheel-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+#wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.wheel-container.spinning #wheel {
+  transition: transform 0.1s linear;
+}
+
+#spin {
+  font: 1rem 'Arial', sans-serif; /* Reduced font size */
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30%; /* Increased from 25% to maintain readability */
+  height: 30%; /* Increased from 25% to maintain readability */
+  transform: translate(-50%, -50%);
+  background: linear-gradient(145deg, #ff3333, #cc0000);
+  color: #ffffff;
+  box-shadow: 0 0 0 6px #ff0000, 0 4px 10px rgba(0, 0, 0, 0.3); /* Reduced shadow size */
+  border-radius: 50%;
+  transition: 0.3s;
+  border: none;
+  outline: none;
+  font-weight: bold;
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#spin:hover {
+  background: linear-gradient(145deg, #ff4d4d, #e60000);
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 0 0 6px #ff3333, 0 6px 15px rgba(0, 0, 0, 0.4); /* Reduced shadow size */
+}
+
+#spin:active {
+  background: linear-gradient(145deg, #cc0000, #990000);
+  transform: translate(-50%, -50%) scale(0.95);
+  box-shadow: 0 0 0 6px #cc0000, 0 2px 8px rgba(0, 0, 0, 0.2); /* Reduced shadow size */
+}
+
+#spin:disabled {
+  background: linear-gradient(145deg, #888, #666);
+  cursor: not-allowed;
+  box-shadow: 0 0 0 6px #777, 0 2px 8px rgba(0, 0, 0, 0.2); /* Reduced shadow size */
+}
+
+.spin-arrow {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent; /* Reduced from 15px */
+  border-right: 12px solid transparent; /* Reduced from 15px */
+  border-top: 24px solid #ffd700; /* Reduced from 30px */
+  position: absolute;
+  top: -12px; /* Adjusted to match new size */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); /* Reduced shadow size */
+}
+
+.result {
+  font-size: 1.2rem; /* Reduced from 1.5rem */
+  color: #fff;
+  text-align: center;
+  position: absolute;
+  bottom: -50px; /* Moved closer to the wheel */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 8px 16px; /* Reduced padding */
+  border-radius: 8px; /* Reduced border-radius */
+  width: 80%;
+  max-width: 300px; /* Reduced from 400px */
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.result:not(:empty) {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px); /* Reduced movement */
+}
+
+@media (max-width: 768px) {
+  .wheel-of-fortune {
+    width: 90%; /* Slightly larger on smaller screens */
+  }
+}

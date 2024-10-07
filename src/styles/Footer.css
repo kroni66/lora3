@@ -1,0 +1,91 @@
+.game-footer {
+  background-color: rgba(0, 0, 0, 0.8);
+  border-top: 2px solid #ffd700;
+  padding: 10px 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  color: #ffd700;
+  font-size: 14px;
+}
+
+.footer-info svg {
+  margin-right: 8px;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-button {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ffd700;
+  border-radius: 20px;
+  color: #ffd700;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.footer-button:hover {
+  background-color: rgba(255, 215, 0, 0.2);
+}
+
+.footer-button svg {
+  margin-right: 8px;
+}
+
+.settings-button {
+  background-color: rgba(0, 128, 255, 0.2);
+}
+
+.logout-button {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.button-text {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .button-text {
+    display: inline;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-button {
+    padding: 8px;
+  }
+  
+  .footer-button svg {
+    margin-right: 0;
+  }
+}
+
+.mailbox-button {
+  background-color: rgba(0, 128, 0, 0.2);
+}
+
+.mailbox-button:hover {
+  background-color: rgba(0, 128, 0, 0.3);
+}

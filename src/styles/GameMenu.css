@@ -1,0 +1,227 @@
+.game-menu {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.game-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-logo img {
+  width: 80%;
+  max-width: 200px;
+}
+
+.avatar-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.avatar-container.level-up {
+  animation: levelUpPulse 1s ease-in-out 3;
+}
+
+@keyframes levelUpPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffd700;
+}
+
+.level-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #ffd700;
+  color: #1a1a2e;
+  font-weight: bold;
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #1a1a2e;
+}
+
+.player-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.player-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.player-gold {
+  font-size: 14px;
+  color: #ffd700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gold-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Remove these styles as they're no longer needed for the SVG icon
+.gold-icon path,
+.gold-icon circle {
+  stroke: #ffd700;
+}
+*/
+
+.exp-bar-container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.exp-bar {
+  height: 10px;
+  background-color: #2a2a3e;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.exp-fill {
+  height: 100%;
+  background-color: #ffd700;
+}
+
+.exp-text {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.menu-items {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: transparent;
+  border: none;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+  background-color: #ffd700;
+  color: #1a1a2e;
+}
+
+.menu-icon {
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.menu-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 1200px) {
+  .game-menu {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .game-logo, .avatar-container, .player-info {
+    margin: 0;
+  }
+
+  .menu-items {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 5px;
+  }
+
+  .menu-item {
+    padding: 5px 10px;
+  }
+
+  .menu-text {
+    display: none;
+  }
+}
+
+.exp-details {
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: left;
+  padding: 0 20px;
+}
+
+.exp-details div {
+  margin-bottom: 5px;
+}
+
+.menu-item.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.menu-item .lock-icon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  color: #ffd700;
+}
+
+.menu-item.locked:hover {
+  background-color: transparent;
+}
+
+.menu-item .menu-icon {
+  position: relative;
+}

@@ -1,17 +1,20 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
-const dbConfig = {
-    host: "localhost",
-    database: "mmorpg_game",
-    user: "root",
-    password: "Mi17sa95++"
-};
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
 
-let db;
+async function query(text, params) {
+    const start = Date.now();
+    const res = await pool.query(text, params);
+    const duration = Date.now() - start;
+    console.log('executed query', { text, duration, rows: res.rowCount });
+    return res;
+}
 
 async function connectToDatabase() {
     try {
-        db = await mysql.createConnection(dbConfig);
+        await pool.connect();
         console.log('Connected to database');
     } catch (err) {
         console.error('Database connection failed:', err);
@@ -24,7 +27,7 @@ connectToDatabase();
 async function getMob() {
     try {
         console.log("Attempting to fetch a random mob from the database.");
-        const [rows] = await db.execute("SELECT * FROM mobs ORDER BY RAND() LIMIT 1");
+        const { rows } = await query("SELECT * FROM mobs ORDER BY RANDOM() LIMIT 1");
         if (rows.length === 0) {
             console.log("No mobs found in the database.");
             return null;
@@ -54,10 +57,10 @@ function calculateDamage(attacker, defender) {
 }
 
 async function performFightTurn(playerId, mobId, isPlayerTurn) {
-    const [playerRows] = await db.execute("SELECT * FROM users WHERE id = ?", [playerId]);
+    const { rows: playerRows } = await query("SELECT * FROM users WHERE id = $1", [playerId]);
     const player = playerRows[0];
     
-    const [mobRows] = await db.execute("SELECT * FROM mobs WHERE id = ?", [mobId]);
+    const { rows: mobRows } = await query("SELECT * FROM mobs WHERE id = $1", [mobId]);
     const mob = mobRows[0];
     
     let result, message;
@@ -81,17 +84,28 @@ async function performFightTurn(playerId, mobId, isPlayerTurn) {
 
 async function startFight(playerId, mobId) {
     try {
-        // Fetch player data
-        const [playerRows] = await db.execute("SELECT * FROM users WHERE id = ?", [playerId]);
+        console.log(`Starting fight for player: ${playerId}, mob: ${mobId}`);
+        
+        // Try to fetch player data by ID first
+        let { rows: playerRows } = await query("SELECT * FROM users WHERE id = $1", [playerId]);
+        
+        // If no player found by ID, try to fetch by username
+        if (playerRows.length === 0) {
+            console.log(`No player found with ID: ${playerId}. Trying to fetch by username.`);
+            ({ rows: playerRows } = await query("SELECT * FROM users WHERE username = $1", [playerId]));
+        }
+        
         const player = playerRows[0];
 
         if (!player) {
-            console.error(`Player not found for id: ${playerId}`);
+            console.error(`Player not found for id/username: ${playerId}`);
             return { error: 'Player not found', playerId };
         }
+        
+        console.log(`Player found:`, player);
 
         // Fetch mob data
-        const [mobRows] = await db.execute("SELECT * FROM mobs WHERE id = ?", [mobId]);
+        const { rows: mobRows } = await query("SELECT * FROM mobs WHERE id = $1", [mobId]);
         const mob = mobRows[0];
 
         if (!mob) {
@@ -106,12 +120,12 @@ async function startFight(playerId, mobId) {
         }
 
         // Create a new fight entry
-        const [result] = await db.execute(
-            "INSERT INTO fights (player_id, mob_id, player_health, mob_health) VALUES (?, ?, ?, ?)",
+        const { rows } = await query(
+            "INSERT INTO fights (player_id, mob_id, player_health, mob_health) VALUES ($1, $2, $3, $4) RETURNING id",
             [playerId, mobId, player.health, mob.max_health]
         );
 
-        return { fightId: result.insertId };
+        return { fightId: rows[0].id };
     } catch (error) {
         console.error("Error in startFight:", error);
         return { error: 'Database error', details: error.message };
@@ -119,14 +133,14 @@ async function startFight(playerId, mobId) {
 }
 
 async function getFightStatus(fightId) {
-    const [rows] = await db.execute("SELECT * FROM fights WHERE id = ?", [fightId]);
+    const { rows } = await query("SELECT * FROM fights WHERE id = $1", [fightId]);
     return rows[0];
 }
 
 async function updateFightStatus(fightId, playerHealth, mobHealth, isPlayerTurn) {
     try {
-        await db.execute(
-            "UPDATE fights SET player_health = ?, mob_health = ?, is_player_turn = ? WHERE id = ?",
+        await query(
+            "UPDATE fights SET player_health = $1, mob_health = $2, is_player_turn = $3 WHERE id = $4",
             [playerHealth, mobHealth, isPlayerTurn, fightId]
         );
     } catch (error) {
@@ -136,7 +150,7 @@ async function updateFightStatus(fightId, playerHealth, mobHealth, isPlayerTurn)
 }
 
 async function endFight(fightId) {
-    await db.execute("DELETE FROM fights WHERE id = ?", [fightId]);
+    await query("DELETE FROM fights WHERE id = $1", [fightId]);
 }
 
 module.exports = {

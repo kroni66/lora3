@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://engine:password@localhost:5432/project_db',
+    connectionString: process.env.DATABASE_URL,
 });
 
 async function query(text, params) {
@@ -24,16 +24,6 @@ async function connectToDatabase() {
 
 connectToDatabase();
 
-module.exports = {
-    query,
-    getMob,
-    calculateDamage,
-    performFightTurn,
-    startFight,
-    getFightStatus,
-    updateFightStatus,
-    endFight
-};
 async function getMob() {
     try {
         console.log("Attempting to fetch a random mob from the database.");
@@ -164,6 +154,7 @@ async function endFight(fightId) {
 }
 
 module.exports = {
+    query,
     getMob,
     calculateDamage,
     performFightTurn,

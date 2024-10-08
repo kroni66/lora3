@@ -5,7 +5,6 @@ import InventoryGrid from './InventoryGrid';
 import IsometricView from './IsometricView';
 import ResourcesTable from './ResourcesTable';
 import BuildingMenu from '../BuildingMenu';
-// Remove the import for RotationControls
 import '../../styles/FortressScreen.css';
 
 class FortressScreen extends React.Component {

@@ -26,7 +26,6 @@ function GameMenu({ currentLocation, onLocationChange, playerLevel, playerName, 
       const defaultClass = 'warrior'; // Set a default class
       const classToUse = playerClass || defaultClass;
       const src = `/assets/classes/avatar/${classToUse}/${code}.webp`;
-      console.log('Attempting to load avatar from:', src);
       setAvatarSrc(src);
     };
 

@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useCallback } from "react";
 import React, { useState, useEffect, useCallback } from 'react';
 import PlayerCard from './PlayerCard';
 import MobCard from './MobCard';
@@ -21,7 +22,6 @@ const FightScreen = ({ player, onFightEnd }) => {
     const initializeFight = async () => {
       try {
         const mobData = await fetchMob();
-        console.log('Fetched mob data:', mobData);
         setMob(mobData);
         setMobHealth(mobData.max_health);
         const newFightId = await startFight(player.id, mobData.id);
@@ -33,7 +33,8 @@ const FightScreen = ({ player, onFightEnd }) => {
     initializeFight();
   }, [player.id]);
 
-  const handleTurn = useCallback(async () => {
+const memoizedHandleTurn = useCallback(memoizedHandleTurn, [fightId, mob, player]);
+  const memoizedHandleTurn = useCallback(async () => {
     if (!mob || isAnimating || isFightOver) return;
 
     setIsAnimating(true);
@@ -67,10 +68,10 @@ const FightScreen = ({ player, onFightEnd }) => {
 
   useEffect(() => {
     if (fightId && mob && !isFightOver) {
-      const turnInterval = setInterval(handleTurn, 2000);
+      const turnInterval = setInterval(memoizedHandleTurn, 2000);
       return () => clearInterval(turnInterval);
     }
-  }, [fightId, mob, isFightOver, handleTurn]);
+  }, [fightId, mob, isFightOver, memoizedHandleTurn]);
 
   const handleContinue = () => {
     onFightEnd(fightResult === 'win');

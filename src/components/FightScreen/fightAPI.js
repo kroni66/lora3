@@ -65,13 +65,8 @@ export const endFight = async (fightId) => {
 
 export const fetchMob = async () => {
   try {
-    console.log('Attempting to fetch mob...');
     const response = await fetch(`${API_URL}/mob`);
-    console.log('Full response:', response);
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
     const responseText = await response.text();
-    console.log('Response text:', responseText);
 
     if (!responseText) {
       console.error('Empty response from server');
@@ -87,7 +82,6 @@ export const fetchMob = async () => {
       throw new Error(`Invalid JSON response: ${responseText}`);
     }
 
-    console.log('Parsed data:', data);
     if (data.success && data.mob) {
       return data.mob;
     } else {

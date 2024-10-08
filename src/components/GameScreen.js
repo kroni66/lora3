@@ -1,3 +1,4 @@
+import { log } from '../utils/logger';
 import React, { useState, useEffect } from 'react';
 import GameMenu from './GameMenu';
 import TavernScreen from './TavernScreen';
@@ -30,23 +31,23 @@ function GameScreen({ username, experience, level, desireForAdventure, playerCla
       alert('You need to be at least level 20 to access the Arena!');
       return;
     }
-    console.log('Changing location to:', location);
+    log('Changing location to:', location);
     setCurrentLocation(location);
     onLocationChange(location);
   };
 
   const handlePrizeWon = (prize) => {
-    console.log(`Player won: ${prize}`);
+    log(`Player won: ${prize}`);
     // Here you can add logic to update the player's resources based on the prize
     // For example:
     if (prize.includes('Gold')) {
       const goldAmount = parseInt(prize);
       // Update player's gold
-      console.log(`Adding ${goldAmount} gold to player's inventory`);
+      log(`Adding ${goldAmount} gold to player's inventory`);
     } else if (prize.includes('XP')) {
       const xpAmount = parseInt(prize);
       // Update player's XP
-      console.log(`Adding ${xpAmount} XP to player's experience`);
+      log(`Adding ${xpAmount} XP to player's experience`);
     }
     // You might want to call a function passed from props to update the player's state in the parent component
   };
@@ -57,7 +58,7 @@ function GameScreen({ username, experience, level, desireForAdventure, playerCla
 
   const handleSendInvite = async (inviteeUsername) => {
     // This function will be implemented in the ClanScreen component
-    console.log(`Sending clan invite to ${inviteeUsername}`);
+    log(`Sending clan invite to ${inviteeUsername}`);
   };
 
   const player = {
